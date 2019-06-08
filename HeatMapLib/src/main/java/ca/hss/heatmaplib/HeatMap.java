@@ -344,6 +344,44 @@ public class HeatMap extends View implements View.OnTouchListener {
         dataBuffer.add(point);
         dataModified = true;
     }
+    
+    private static String convertStreamToString(InputStream is) {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+
+        String line = null;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
+    }
+    
+    @override
+    public void getCoordinates () {
+        URL url = new URL("https://api.dejavoo.com/v2/statistics/heatmap/fetchCoordinates");
+        HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+        if (connection.getResponseCode()==201 || connection.getResponseCode()==200) {
+            InputStream response = connection.getInputStream();
+            JSONObject jsonReply = convertStreamToString(response);
+            Map<String, String>[] arr = jsonReply.getString("coordinates");
+            for (NameValuePair pair : arr) {
+                HeatMap.DataPoint point = new HeatMap.DataPoint(pair.getKey(), pair.getValue());
+                heatmap.addData(point);
+            }
+        } else {
+           // ошибка
+        }
+    }
 
     /**
      * Clears the data that is being displayed in the heat map.
@@ -803,6 +841,7 @@ public class HeatMap extends View implements View.OnTouchListener {
 
             HttpResponse response = httpclient.execute(httppost);
 
+            return true;
         } catch (ClientProtocolException e) {}
         catch (IOException e) {}
     }
