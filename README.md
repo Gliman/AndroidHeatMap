@@ -28,7 +28,7 @@ allprojects {
 
 ```gradle
 dependencies {
-	implementation 'ca.heartlandsoftware:androidheatmap:1.1.1'
+	implementation 'ca.gliman:androidheatmap:1.1.1'
 }
 ```
 
