@@ -789,6 +789,23 @@ public class HeatMap extends View implements View.OnTouchListener {
             }
         }
     }
+    
+    @Override
+    public boolean postCoordinates(float x, float y) {
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpPost httppost = new HttpPost("https://api.dejavoo.com/v2/statistics/heatmap/saveCoordinates");
+
+        try {
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+            nameValuePairs.add(new BasicNameValuePair("xAssix", x));
+            nameValuePairs.add(new BasicNameValuePair("yAssix", y));
+            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+            HttpResponse response = httpclient.execute(httppost);
+
+        } catch (ClientProtocolException e) {}
+        catch (IOException e) {}
+    }
 
     private float touchX;
     private float touchY;
@@ -803,6 +820,10 @@ public class HeatMap extends View implements View.OnTouchListener {
                 if (d < 10) {
                     x = x / (float) getWidth();
                     y = y / (float) getHeight();
+                    
+                    // сохранение координат нажатия в базу данных
+                    postCoordinates(x, y);
+                    
                     double minDist = Double.MAX_VALUE;
                     DataPoint minPoint = null;
                     for (DataPoint point : data) {
